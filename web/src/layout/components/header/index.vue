@@ -5,9 +5,9 @@
   </div>
   <div ml-auto flex items-center>
     <Languages />
-    <ThemeMode />
+    <!-- <ThemeMode />
     <GithubSite />
-    <FullScreen />
+    <FullScreen /> -->
     <UserAvatar />
   </div>
 </template>
