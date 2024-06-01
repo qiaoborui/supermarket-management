@@ -58,10 +58,10 @@ async def update_supplier(
     return Success(data=await supplier.to_dict())
 
 
-@router.post("/delete", summary="删除供应商")
+@router.delete("/delete", summary="删除供应商")
 async def delete_supplier(
     supplier_id: int = Query(..., description="供应商ID"),
 ):
     supplier = await supplier_controller.delete(id=supplier_id)
-    return Success(data=await supplier.to_dict())
+    return Success(msg="Deleted Successfully")
 

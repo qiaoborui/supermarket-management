@@ -112,20 +112,14 @@ const columns = [
     align: 'center',
   },
   {
-    title: '邮箱',
-    key: 'email',
-    width: 80,
-    align: 'center',
-  },
-  {
     title: '地址',
-    key: ' address',
+    key: 'address',
     width: 80,
     align: 'center',
   },
   {
     title: '备注',
-    key: ' remark',
+    key: 'remark',
     width: 80,
     align: 'center',
   },
@@ -167,7 +161,7 @@ const columns = [
         h(
           NPopconfirm,
           {
-            onPositiveClick: () => handleDelete({ role_id: row.id }, false),
+            onPositiveClick: () => handleDelete({ supplier_id: row.id }, false),
             onNegativeClick: () => {},
           },
           {
@@ -194,41 +188,12 @@ const columns = [
     },
   },
 ]
-
-async function updateRoleAuthorized() {
-  const checkData = apiTree.value.getCheckedData()
-  const apiInfos = []
-  checkData &&
-    checkData.options.forEach((item) => {
-      if (!item.children) {
-        apiInfos.push({
-          path: item.path,
-          method: item.method,
-        })
-      }
-    })
-  const { code, msg } = await api.updateRoleAuthorized({
-    id: role_id.value,
-    menu_ids: menu_ids.value,
-    api_infos: apiInfos,
-  })
-  if (code === 200) {
-    $message?.success('设置成功')
-  } else {
-    $message?.error(msg)
-  }
-
-  const result = await api.getRoleAuthorized({ id: role_id.value })
-  menu_ids.value = result.data.menus.map((v) => {
-    return v.id
-  })
-}
 </script>
 
 <template>
   <CommonPage show-footer title="供应商列表">
     <template #action>
-      <NButton v-permission="'post/api/v1/role/create'" type="primary" @click="handleAdd">
+      <NButton v-permission="'post/api/v1/supplier/create'" type="primary" @click="handleAdd">
         <TheIcon icon="material-symbols:add" :size="18" class="mr-5" />新建供应商
       </NButton>
     </template>
