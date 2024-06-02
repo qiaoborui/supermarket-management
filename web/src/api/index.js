@@ -41,4 +41,9 @@ export default {
   createSupplier: (data = {}) => request.post('/supplier/create', data),
   updateSupplier: (data = {}) => request.post('/supplier/update', data),
   deleteSupplier: (params = {}) => request.delete('/supplier/delete', { params }),
+  // products
+  getProductsList: (params = {}) => request.get('/product/list', { params }),
+  createProduct: (data = {}) => request.post('/product/create', data),
+  updateProduct: (data = {}) => request.post('/product/update', data),
+  deleteProduct: (params = {}) => request.delete('/product/delete', { params }),
 }
