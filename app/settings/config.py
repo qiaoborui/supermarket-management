@@ -25,7 +25,7 @@ class Settings(BaseSettings):
                 "host": "localhost",
                 "port": "3306",
                 "user": "root",
-                "password": "123456",
+                "password": "MyC0mpl3xP@ssw0rd!",
                 "database": "fastapi-admin",
             },
         },
@@ -39,7 +39,7 @@ class Settings(BaseSettings):
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 day
     TORTOISE_ORM: dict = {
         "connections": {
-            "sqlite": "mysql://root:123456@localhost:3306/fastapi-admin",
+            "sqlite": "mysql://root:MyC0mpl3xP@ssw0rd!@localhost:3306/fastapi-admin",
         },
         "apps": {
             "models": {

@@ -219,10 +219,10 @@ const columns = [
           <NInput v-model:value="modalForm.description" placeholder="请输入描述" />
         </NFormItem>
         <NFormItem label="价格" path="price">
-          <NInput v-model:value="modalForm.price" placeholder="请输入价格" />
+          <NInput v-model:value="modalForm.price" placeholder="请输入价格" type="number" />
         </NFormItem>
         <NFormItem label="库存" path="stock">
-          <NInput v-model:value="modalForm.stock" placeholder="请输入库存" />
+          <NInput v-model:value="modalForm.stock" placeholder="请输入库存" type="number" />
         </NFormItem>
         <NFormItem label="供应商" path="supplier_id">
               <NTreeSelect

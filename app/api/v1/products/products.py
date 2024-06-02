@@ -17,15 +17,13 @@ async def list_product(
     page: int = Query(1, description="页码"),
     page_size: int = Query(10, description="每页数量"),
     name: str = Query("", description="产品名称，用于搜索"),
-    price: float = Query(None, description="价格"),
 ):
     q = Q()
     if name:
         q &= Q(name__contains=name)
-    if price:
-        q &= Q(price__contains=price)
     total, product_objs = await product_controller.list(page=page, page_size=page_size, search=q)
     data = [await obj.to_dict() for obj in product_objs]
+    print(data)
     return SuccessExtra(data=data, total=total, page=page, page_size=page_size)
 
 

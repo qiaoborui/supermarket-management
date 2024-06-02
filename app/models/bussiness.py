@@ -16,7 +16,8 @@ class Product(BaseModel,TimestampMixin):
     # use supplier_id as foreign key
     name = fields.CharField(max_length=50, description="产品名称")
     description = fields.TextField(null=True, description="描述")
-    price = fields.DecimalField(max_digits=10, decimal_places=2, description="价格")
+    #使用 float
+    price = fields.FloatField(description="价格")
     stock = fields.IntField(description="库存")
     supplier = fields.ForeignKeyField("models.Supplier", related_name="products")
     remark = fields.TextField(null=True, description="备注")

@@ -8,7 +8,7 @@ class BaseProduct(BaseModel):
     description: Optional[str] = None
     price: Optional[float] = None
     stock: Optional[int] = None
-    supplier: Optional[int] = None
+    supplier_id: Optional[int] = None
     remark: Optional[str] = None
     created_at: Optional[datetime]
     updated_at: Optional[datetime]
@@ -16,9 +16,9 @@ class BaseProduct(BaseModel):
 class ProductCreate(BaseModel):
     name: str = Field(example="产品名称")
     description: Optional[str] = Field("",example="描述")
-    price: float = Field(...,example="价格")
-    stock: int = Field(...,example="库存")
-    supplier: int = Field(...,example="供应商ID")
+    price: float = Field(...,example=999)
+    stock: int = Field(...,example=999)
+    supplier_id: int = Field(...,example=1)
     remark: Optional[str] = Field("",example="备注")
     
     def create_dict(self):
@@ -28,7 +28,7 @@ class ProductUpdate(BaseModel):
     id: int
     name: str = Field(example="产品名称")
     description: Optional[str] = Field(example="描述")
-    price: float = Field(example="价格")
-    stock: int = Field(example="库存")
-    supplier: int = Field(example="供应商ID")
+    price: float = Field(example=999)
+    stock: int = Field(example=999)
+    supplier_id: int = Field(example=1)
     remark: Optional[str] = Field(example="备注")
