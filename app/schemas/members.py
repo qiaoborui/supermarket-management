@@ -16,7 +16,7 @@ class BaseMember(BaseModel):
 class MemberCreate(BaseModel):
     realname: str = Field(example="张三")
     points: Optional[float] = 0
-    user_id: int
+    user_id: Optional[int]
     discount_level: Optional[int] = 0
 
     def create_dict(self):
