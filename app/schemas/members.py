@@ -6,6 +6,9 @@ from pydantic import BaseModel, EmailStr, Field
 class BaseMember(BaseModel):
     id: int
     realname: str
+    phone: str
+    personal_id: str
+    address: str
     points: Optional[float] = 0
     user_id: int
     discount_level_id: Optional[int] = 0
@@ -15,6 +18,9 @@ class BaseMember(BaseModel):
 
 class MemberCreate(BaseModel):
     realname: str = Field(example="张三")
+    phone: str = Field(example="13800138000")
+    personal_id: str = Field(example="110101199003070000")
+    address: str = Field(example="北京市朝阳区")
     points: Optional[float] = 0
     user_id: Optional[int]
     discount_level_id: Optional[int] = 0
@@ -26,6 +32,9 @@ class MemberCreate(BaseModel):
 class MemberUpdate(BaseModel):
     id: int
     realname: str
+    phone: str
+    personal_id: str
+    address: str
     points: float
     user_id: int
     discount_level_id: Optional[int] = 0

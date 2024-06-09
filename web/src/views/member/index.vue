@@ -68,7 +68,7 @@ const columns = [
   {
     title: 'ID',
     key: 'id',
-    width: 80,
+    width: 30,
     align: 'center',
     ellipsis: { tooltip: true },
   },
@@ -78,6 +78,24 @@ const columns = [
     width: 80,
     align: 'center',
   }, 
+  {
+    title: '手机号',
+    key: 'phone',
+    width: 90,
+    align: 'center',
+  },
+  {
+    title: '身份证号',
+    key: 'personal_id',
+    width: 160,
+    align: 'center',
+  },
+  {
+    title: '住址',
+    key: 'address',
+    width: 80,
+    align: 'center',
+  },
   {
     title: '积分',
     key: 'points',
@@ -217,6 +235,39 @@ const columns = [
           }"
         >
           <NInput v-model:value="modalForm.realname" placeholder="请输入真实姓名" />
+        </NFormItem>
+        <NFormItem
+          label="手机号"
+          path="phone"
+          :rule="{
+            required: true,
+            message: '请输入手机号',
+            trigger: ['input', 'blur'],
+          }"  
+        >
+          <NInput v-model:value="modalForm.phone" placeholder="请输入手机号" />
+        </NFormItem>
+        <NFormItem
+          label="身份证号"
+          path="personal_id"
+          :rule="{
+            required: true,
+            message: '请输入身份证号',
+            trigger: ['input', 'blur'],
+          }"
+        >
+          <NInput v-model:value="modalForm.personal_id" placeholder="请输入身份证号" />
+        </NFormItem>
+        <NFormItem
+          label="住址"
+          path="address"
+          :rule="{
+            required: true,
+            message: '请输入住址',
+            trigger: ['input', 'blur'],
+          }"
+        >
+          <NInput v-model:value="modalForm.address" placeholder="请输入住址" />
         </NFormItem>
         <NFormItem
           label="积分"
