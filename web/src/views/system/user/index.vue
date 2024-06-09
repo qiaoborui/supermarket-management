@@ -65,12 +65,10 @@ const {
 })
 
 const roleOption = ref([])
-const deptOption = ref([])
 
 onMounted(() => {
   $table.value?.handleSearch()
   api.getRoleList({ page: 1, page_size: 9999 }).then((res) => (roleOption.value = res.data))
-  api.getDepts().then((res) => (deptOption.value = res.data))
 })
 
 const columns = [
@@ -167,9 +165,6 @@ const columns = [
               style: 'margin-right: 8px;',
               onClick: () => {
                 handleEdit(row)
-                modalForm.value.dept_id = row.dept?.id
-                modalForm.value.role_ids = row.roles.map((e) => (e = e.id))
-                delete modalForm.value.dept
               },
             },
             {
@@ -221,11 +216,7 @@ async function handleUpdateDisable(row) {
   row.is_active = row.is_active === false ? true : false
   row.publishing = false
   const role_ids = []
-  row.roles.forEach((e) => {
-    role_ids.push(e.id)
-  })
-  row.role_ids = role_ids
-  row.dept_id = row.dept?.id
+
   try {
     await api.updateUser(row)
     $message?.success(row.is_active ? '已取消禁用该用户' : '已禁用该用户')
@@ -240,21 +231,6 @@ async function handleUpdateDisable(row) {
 
 let lastClickedNodeId = null
 
-const nodeProps = ({ option }) => {
-  return {
-    onClick() {
-      if (lastClickedNodeId === option.id) {
-        $table.value?.handleSearch()
-        lastClickedNodeId = null
-      } else {
-        api.getUserList({ dept_id: option.id }).then((res) => {
-          $table.value.tableData = res.data
-          lastClickedNodeId = option.id
-        })
-      }
-    },
-  }
-}
 
 const validateAddUser = {
   username: [
