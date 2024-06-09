@@ -46,7 +46,7 @@ async def create_discount_level(discount_level_in: DiscountLevelCreate):
 
 @router.post("/update", summary="更新折扣等级")
 async def update_discount_level(discount_level_in: DiscountLevelUpdate):
-    await discount_level_controller.update(id=discount_level_in.id, obj_in=discount_level_in)
+    await discount_level_controller.update(obj_in=discount_level_in)
     return Success(msg="Updated Successfully")
 
 

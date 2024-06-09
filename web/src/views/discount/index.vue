@@ -26,7 +26,7 @@ import { useCRUD } from '@/composables'
 import api from '@/api'
 import TheIcon from '@/components/icon/TheIcon.vue'
 
-defineOptions({ name: '角色管理' })
+defineOptions({ name: '优惠等级管理' })
 
 const $table = ref(null)
 const queryItems = ref({})
@@ -44,48 +44,13 @@ const {
   modalForm,
   modalFormRef,
 } = useCRUD({
-  name: '供应商',
+  name: '优惠等级',
   initForm: {},
-  doCreate: api.createSupplier,
-  doDelete: api.deleteSupplier,
-  doUpdate: api.updateSupplier,
+  doCreate: api.createDiscountLevel,
+  doDelete: api.deleteDiscountLevel,
+  doUpdate: api.updateDiscountLevel,
   refresh: () => $table.value?.handleSearch(),
 })
-
-const pattern = ref('')
-const menuOption = ref([]) // 菜单选项
-const active = ref(false)
-const menu_ids = ref([])
-const role_id = ref(0)
-const apiOption = ref([])
-const api_ids = ref([])
-const apiTree = ref([])
-
-function buildApiTree(data) {
-  const processedData = []
-  const groupedData = {}
-
-  data.forEach((item) => {
-    const tags = item['tags']
-    const pathParts = item['path'].split('/')
-    const path = pathParts.slice(0, -1).join('/')
-    const summary = tags.charAt(0).toUpperCase() + tags.slice(1)
-    const unique_id = item['method'].toLowerCase() + item['path']
-    if (!(path in groupedData)) {
-      groupedData[path] = { unique_id: path, path: path, summary: summary, children: [] }
-    }
-
-    groupedData[path].children.push({
-      id: item['id'],
-      path: item['path'],
-      method: item['method'],
-      summary: item['summary'],
-      unique_id: unique_id,
-    })
-  })
-  processedData.push(...Object.values(groupedData))
-  return processedData
-}
 
 onMounted(() => {
   $table.value?.handleSearch()
@@ -93,33 +58,21 @@ onMounted(() => {
 
 const columns = [
   {
-    title: '名称',
+    title: '优惠等级',
     key: 'name',
     width: 80,
     align: 'center',
     ellipsis: { tooltip: true },
   },
   {
-    title: '手机号',
-    key: 'phone',
+    title: '优惠比例',
+    key: 'discount',
     width: 80,
     align: 'center',
-  },
+  }, 
   {
-    title: '邮箱',
-    key: 'email',
-    width: 80,
-    align: 'center',
-  },
-  {
-    title: '地址',
-    key: 'address',
-    width: 80,
-    align: 'center',
-  },
-  {
-    title: '备注',
-    key: 'remark',
+    title: '所需积分',
+    key: 'points_required',
     width: 80,
     align: 'center',
   },
@@ -130,6 +83,15 @@ const columns = [
     align: 'center',
     render(row) {
       return h('span', formatDate(row.created_at))
+    },
+  },
+  {
+    title: '更新日期',
+    key: 'updated_at',
+    width: 60,
+    align: 'center',
+    render(row) {
+      return h('span', formatDate(row.updated_at))
     },
   },
   {
@@ -156,12 +118,12 @@ const columns = [
               icon: renderIcon('material-symbols:edit-outline', { size: 16 }),
             }
           ),
-          [[vPermission, 'post/api/v1/supplier/update']]
+          [[vPermission, 'post/api/v1/discount_level/update']]
         ),
         h(
           NPopconfirm,
           {
-            onPositiveClick: () => handleDelete({ supplier_id: row.id }, false),
+            onPositiveClick: () => handleDelete({ discount_level_id: row.id }, false),
             onNegativeClick: () => {},
           },
           {
@@ -179,9 +141,9 @@ const columns = [
                     icon: renderIcon('material-symbols:delete-outline', { size: 16 }),
                   }
                 ),
-                [[vPermission, 'delete/api/v1/supplier/delete']]
+                [[vPermission, 'delete/api/v1/discount_level/delete']]
               ),
-            default: () => h('div', {}, '确定删除该角色吗?'),
+            default: () => h('div', {}, '确定删除该等级吗?'),
           }
         ),
       ]
@@ -191,10 +153,10 @@ const columns = [
 </script>
 
 <template>
-  <CommonPage show-footer title="供应商列表">
+  <CommonPage show-footer title="等级列表">
     <template #action>
-      <NButton v-permission="'post/api/v1/supplier/create'" type="primary" @click="handleAdd">
-        <TheIcon icon="material-symbols:add" :size="18" class="mr-5" />新建供应商
+      <NButton v-permission="'post/api/v1/discount_level/create'" type="primary" @click="handleAdd"> 
+        <TheIcon icon="material-symbols:add" :size="18" class="mr-5" />新建优惠等级
       </NButton>
     </template>
 
@@ -202,15 +164,15 @@ const columns = [
       ref="$table"
       v-model:query-items="queryItems"
       :columns="columns"
-      :get-data="api.getSuppliersList"
+      :get-data="api.getDiscountLevels"
     >
       <template #queryBar>
-        <QueryBarItem label="供应商名" :label-width="50">
+        <QueryBarItem label="优惠等级" :label-width="50">
           <NInput
             v-model:value="queryItems.name"
             clearable
             type="text"
-            placeholder="请输入供应商名"
+            placeholder="请输入优惠等级"
             @keypress.enter="$table?.handleSearch()"
           />
         </QueryBarItem>
@@ -232,27 +194,34 @@ const columns = [
         :disabled="modalAction === 'view'"
       >
         <NFormItem
-          label="供应商名"
+          label="优惠等级"
           path="name"
           :rule="{
             required: true,
-            message: '请输入供应商名',
+            message: '请输入优惠等级',
             trigger: ['input', 'blur'],
           }"
         >
-          <NInput v-model:value="modalForm.name" placeholder="请输入供应商名" />
+          <NInput v-model:value="modalForm.name" placeholder="请输入优惠等级" />
         </NFormItem>
-        <NFormItem label="手机号" path="phone">
-          <NInput v-model:value="modalForm.phone" placeholder="请输入手机号" />
+        <NFormItem label="优惠比例" path="discount"
+            :rule="{
+                required: true,
+                message: '请输入优惠比例',
+                trigger: ['input', 'blur'],
+            }"
+        >
+          <NInput v-model:value="modalForm.discount" placeholder="请输入优惠比例" />
         </NFormItem>
-        <NFormItem label="邮箱" path="email">
-          <NInput v-model:value="modalForm.email" placeholder="请输入邮箱" />
-        </NFormItem>
-        <NFormItem label="地址" path="address">
-          <NInput v-model:value="modalForm.address" placeholder="请输入地址" />
-        </NFormItem>
-        <NFormItem label="备注" path="remark">
-          <NInput v-model:value="modalForm.remark" placeholder="请输入备注" />
+
+        <NFormItem label="所需积分" path="points_required"
+            :rule="{
+                required: true,
+                message: '请输入所需积分',
+                trigger: ['input', 'blur'],
+            }"
+        >
+            <NInput v-model:value="modalForm.points_required" placeholder="请输入所需积分" />
         </NFormItem>
         
       </NForm>

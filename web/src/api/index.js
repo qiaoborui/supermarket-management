@@ -36,14 +36,9 @@ export default {
   createDept: (data = {}) => request.post('/dept/create', data),
   updateDept: (data = {}) => request.post('/dept/update', data),
   deleteDept: (params = {}) => request.delete('/dept/delete', { params }),
-  // suppliers
-  getSuppliersList: (params = {}) => request.get('/supplier/list', { params }),
-  createSupplier: (data = {}) => request.post('/supplier/create', data),
-  updateSupplier: (data = {}) => request.post('/supplier/update', data),
-  deleteSupplier: (params = {}) => request.delete('/supplier/delete', { params }),
-  // products
-  getProductsList: (params = {}) => request.get('/product/list', { params }),
-  createProduct: (data = {}) => request.post('/product/create', data),
-  updateProduct: (data = {}) => request.post('/product/update', data),
-  deleteProduct: (params = {}) => request.delete('/product/delete', { params }),
+  // discount_level
+  getDiscountLevels: (params = {}) => request.get('/discount_level/list', { params }),
+  createDiscountLevel: (data = {}) => request.post('/discount_level/create', data),
+  updateDiscountLevel: (data = {}) => request.post('/discount_level/update', data),
+  deleteDiscountLevel: (params = {}) => request.delete('/discount_level/delete', { params }),
 }
