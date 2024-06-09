@@ -38,4 +38,9 @@ export default {
   createDiscountLevel: (data = {}) => request.post('/discount_level/create', data),
   updateDiscountLevel: (data = {}) => request.post('/discount_level/update', data),
   deleteDiscountLevel: (params = {}) => request.delete('/discount_level/delete', { params }),
+  // member
+  getMembers: (params = {}) => request.get('/member/list', { params }),
+  createMember: (data = {}) => request.post('/member/create', data),
+  updateMember: (data = {}) => request.post('/member/update', data),
+  deleteMember: (params = {}) => request.delete('/member/delete', { params }),
 }
