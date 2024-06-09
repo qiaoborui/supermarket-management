@@ -11,29 +11,37 @@
 
       <div w-320 flex-col px-20 py-35>
         <h5 f-c-c text-24 font-normal color="#6a6a6a">
-          <icon-custom-logo mr-10 text-50 color-primary />{{ $t('app_name') }}
+          <icon-custom-logo mr-10 text-50 color-primary /> 注册
         </h5>
         <div mt-30>
           <n-input
-            v-model:value="loginInfo.username"
+            v-model:value="registerInfo.username"
             autofocus
             class="h-50 items-center pl-10 text-16"
-            placeholder="admin"
+            placeholder="请输入用户名"
             :maxlength="20"
           />
         </div>
         <div mt-30>
           <n-input
-            v-model:value="loginInfo.password"
+            v-model:value="registerInfo.email"
+            autofocus
+            class="h-50 items-center pl-10 text-16"
+            placeholder="请输入邮箱"
+            :maxlength="20"
+          />
+        </div>
+        <div mt-30>
+          <n-input
+            v-model:value="registerInfo.password"
             class="h-50 items-center pl-10 text-16"
             type="password"
             show-password-on="mousedown"
-            placeholder="123456"
+            placeholder="请输入密码"
             :maxlength="20"
-            @keypress.enter="handleLogin"
+            @keypress.enter="handleSignup"
           />
         </div>
-
         <div mt-20>
           <n-button
             h-50
@@ -42,18 +50,6 @@
             text-16
             type="primary"
             :loading="loading"
-            @click="handleLogin"
-          >
-            {{ $t('views.login.text_login') }}
-          </n-button>
-        </div>
-        <div mt-20>
-          <n-button
-            h-50
-            w-full
-            rounded-5
-            text-16
-            type="primary"
             @click="handleSignup"
           >
             注册
@@ -65,60 +61,45 @@
 </template>
 
 <script setup>
-import { lStorage, setToken } from '@/utils'
 import bgImg from '@/assets/images/login_bg.webp'
 import api from '@/api'
-import { addDynamicRoutes } from '@/router'
 import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
 const { query } = useRoute()
 const { t } = useI18n({ useScope: 'global' })
 
-const loginInfo = ref({
+const registerInfo = ref({
   username: '',
+  email: '',
   password: '',
 })
 
-initLoginInfo()
-
-function initLoginInfo() {
-  const localLoginInfo = lStorage.get('loginInfo')
-  if (localLoginInfo) {
-    loginInfo.value.username = localLoginInfo.username || ''
-    loginInfo.value.password = localLoginInfo.password || ''
-  }
-}
-
 const loading = ref(false)
-async function handleLogin() {
-  const { username, password } = loginInfo.value
-  if (!username || !password) {
+async function handleSignup() {
+  const { username, password,email } = registerInfo.value
+  if (!username || !password || !email) {
     $message.warning(t('views.login.message_input_username_password'))
     return
   }
   try {
     loading.value = true
-    $message.loading(t('views.login.message_login_success'))
-    const res = await api.login({ username, password: password.toString() })
-    $message.success(t('views.login.message_login_success'))
-    setToken(res.data.access_token)
-    await addDynamicRoutes()
-    if (query.redirect) {
-      const path = query.redirect
-      console.log('path', { path, query })
-      Reflect.deleteProperty(query, 'redirect')
-      router.push({ path, query })
+    $message.loading("注册中")
+    const res = await api.signup({
+      username: username,
+      password: password.toString(),
+      email: email
+    })
+    console.log(res)
+    if (res.code === 200) {
+      $message.success('注册成功')
     } else {
-      router.push('/')
+      $message.error(res.msg)
     }
+    router.push({ path: '/login' })
   } catch (e) {
     console.error('login error', e.error)
   }
   loading.value = false
-}
-async function handleSignup() {
-  // jump to signup page
-  router.push('/signup')
 }
 </script>

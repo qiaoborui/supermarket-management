@@ -12,6 +12,7 @@ from app.schemas.users import UpdatePassword
 from app.settings import settings
 from app.utils.jwt import create_access_token
 from app.utils.password import get_password_hash, verify_password
+from app.schemas.users import UserCreate
 
 router = APIRouter()
 
@@ -36,6 +37,13 @@ async def login_access_token(credentials: CredentialsSchema):
     )
     return Success(data=data.model_dump())
 
+@router.post("/signup", summary="注册")
+async def signup(user_in: UserCreate):
+    user = await user_controller.get_by_email(user_in.email)
+    if user:
+        return Fail(msg="邮箱已注册")
+    user = await user_controller.create(obj_in=user_in)
+    return Success(msg="注册成功")
 
 @router.get("/userinfo", summary="查看用户信息", dependencies=[DependAuth])
 async def get_userinfo():

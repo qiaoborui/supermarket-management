@@ -112,6 +112,15 @@ export const basicRoutes = [
       title: '登录页',
     },
   },
+  {
+    name: 'Signup',
+    path: '/signup',
+    component: () => import('@/views/signup/index.vue'),
+    isHidden: true,
+    meta: {
+      title: '注册页',
+    },
+  },
 ]
 
 export const NOT_FOUND_ROUTE = {

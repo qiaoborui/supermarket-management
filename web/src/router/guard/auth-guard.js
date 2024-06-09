@@ -1,6 +1,6 @@
 import { getToken, isNullOrWhitespace } from '@/utils'
 
-const WHITE_LIST = ['/login', '/404']
+const WHITE_LIST = ['/login', '/404', '/signup']
 export function createAuthGuard(router) {
   router.beforeEach(async (to) => {
     const token = getToken()
