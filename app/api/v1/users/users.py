@@ -9,6 +9,8 @@ from app.schemas.base import Success, SuccessExtra
 from app.schemas.users import *
 from app.controllers.dept import dept_controller
 from fastapi import File, UploadFile
+import csv
+import io
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
@@ -89,5 +91,27 @@ async def upload_user(
     file: UploadFile = File(...),
 ):
     user_controller = UserController()
-    # TODO: read csv file and create users
-    return Success(msg="Uploaded Successfully")
+    # use csv package to read the file
+    content = await file.read()
+    content = content.decode('utf-8')
+    f = io.StringIO(content)
+    reader = csv.reader(f)
+    # skip the header
+    next(reader)
+    try:
+        for row in reader:
+            user_in = UserCreate(
+                username=row[0],
+                email=row[1],
+                password=row[2],
+                dept_id=int(row[3]) if row[3] else None,
+                role_ids=[int(role_id) for role_id in row[4].split(",")] if row[4] else []
+            )
+            user = await user_controller.get_by_email(user_in.email)
+            if user:
+                continue
+            await user_controller.create(obj_in=user_in)
+    except csv.Error as e:
+        return HTTPException(status_code=400, detail=f"CSV file error: {str(e)}")
+
+    return Success(msg="Created Successfully")

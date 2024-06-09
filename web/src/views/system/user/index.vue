@@ -16,14 +16,22 @@ import {
   NLayoutSider,
   NLayoutContent,
   NTreeSelect,
+  NUpload,
+  useMessage,
 } from 'naive-ui'
+
+const message = useMessage();
+
+const handleSuccess = (response, file) => {
+  message.success(`文件上传成功: ${file.name}`);
+};
 
 import CommonPage from '@/components/page/CommonPage.vue'
 import QueryBarItem from '@/components/query-bar/QueryBarItem.vue'
 import CrudModal from '@/components/table/CrudModal.vue'
 import CrudTable from '@/components/table/CrudTable.vue'
 
-import { formatDate, renderIcon } from '@/utils'
+import { formatDate, renderIcon, getToken } from '@/utils'
 import { useCRUD } from '@/composables'
 // import { loginTypeMap, loginTypeOptions } from '@/constant/data'
 import api from '@/api'
@@ -94,13 +102,6 @@ const columns = [
         )
       return h('span', group)
     },
-  },
-  {
-    title: '部门',
-    key: 'dept.name',
-    align: 'center',
-    width: 40,
-    ellipsis: { tooltip: true },
   },
   {
     title: '超级用户',
@@ -318,31 +319,29 @@ const validateAddUser = {
 
 <template>
   <NLayout has-sider wh-full>
-    <NLayoutSider
-      bordered
-      content-style="padding: 24px;"
-      :collapsed-width="0"
-      :width="240"
-      show-trigger="arrow-circle"
-    >
-      <h1>部门列表</h1>
-      <br />
-      <NTree
-        block-line
-        :data="deptOption"
-        key-field="id"
-        label-field="name"
-        default-expand-all
-        :node-props="nodeProps"
-      >
-      </NTree>
-    </NLayoutSider>
     <NLayoutContent>
       <CommonPage show-footer title="用户列表">
         <template #action>
-          <NButton v-permission="'post/api/v1/user/create'" type="primary" @click="handleAdd">
-            <TheIcon icon="material-symbols:add" :size="18" class="mr-5" />新建用户
-          </NButton>
+          <div class="flex justify-between space-x-4">
+            <NButton v-permission="'post/api/v1/user/create'" type="primary" @click="handleAdd">
+              <TheIcon icon="material-symbols:add" :size="18" class="mr-5" />新建用户
+            </NButton>
+            <NUpload
+              action="/api/v1/user/upload"
+              :headers="{token: getToken()}"
+              accept=".csv"
+              show-upload-list={false}
+              show-file-list="false"
+              @finish="handleSuccess"
+            > 
+              <NButton type="primary">
+          <TheIcon icon="material-symbols:upload" :size="18" class="mr-5" />导入用户
+              </NButton>
+            </NUpload>
+          </div>
+        </template>
+        <template #upload>
+          
         </template>
         <!-- 表格 -->
         <CrudTable
@@ -439,17 +438,6 @@ const validateAddUser = {
                 :unchecked-value="true"
                 :default-value="true"
               />
-            </NFormItem>
-            <NFormItem label="部门" path="dept_id">
-              <NTreeSelect
-                v-model:value="modalForm.dept_id"
-                :options="deptOption"
-                key-field="id"
-                label-field="name"
-                placeholder="请选择部门"
-                clearable
-                default-expand-all
-              ></NTreeSelect>
             </NFormItem>
           </NForm>
         </CrudModal>
