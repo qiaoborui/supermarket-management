@@ -1,6 +1,6 @@
 from pydantic_settings import BaseSettings
 import os, typing
-from dotenv import load_dotenv
+from load_dotenv import load_dotenv
 class Settings(BaseSettings):
     VERSION: str = "0.1.0"
     APP_TITLE: str = "Vue FastAPI Admin"
