@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware import Middleware
 from fastapi.middleware.cors import CORSMiddleware
 from tortoise.contrib.fastapi import register_tortoise
-
+from tortoise import Tortoise
 from app.api import api_router
 from app.controllers.user import UserCreate, user_controller
 from app.core.exceptions import (
@@ -106,6 +106,95 @@ async def init_discount():
             discount=0.6,
             points_required=5000,
         )
+
+async def createTrigger():
+    connection = Tortoise.get_connection("mysql")
+    await connection.execute_script(
+        """
+CREATE TRIGGER IF NOT EXISTS `after_consumption_insert`
+AFTER INSERT ON `consumption_records`
+FOR EACH ROW
+BEGIN
+  DECLARE new_points INT;
+  SET new_points = NEW.actual_amount_spent;
+  UPDATE `member`
+    SET `points` = `points` + new_points
+    WHERE `id` = NEW.member_id;
+  INSERT INTO `points_transactions`(`member_id`, `points_changed`, `transaction_type`)
+    VALUES (NEW.member_id, new_points, 'add');
+END;
+        """)
+    await connection.execute_script(
+        """
+CREATE TRIGGER IF NOT EXISTS `after_consumption_delete`
+AFTER DELETE ON `consumption_records`
+FOR EACH ROW
+BEGIN
+  DECLARE lost_points INT;
+  SET lost_points = OLD.actual_amount_spent;
+  UPDATE `member`
+    SET `points` = `points` - lost_points
+    WHERE `id` = OLD.member_id;
+  INSERT INTO `points_transactions`(`member_id`, `points_changed`, `transaction_type`)
+    VALUES (OLD.member_id, -lost_points, 'subtract');
+END;
+""")
+    await connection.execute_script(
+        """
+CREATE TRIGGER IF NOT EXISTS `after_consumption_update`
+AFTER UPDATE ON `consumption_records`
+FOR EACH ROW
+BEGIN
+  DECLARE diff_points INT;
+  SET diff_points = NEW.actual_amount_spent - OLD.actual_amount_spent;
+  UPDATE `member`
+    SET `points` = `points` + diff_points
+    WHERE `id` = NEW.member_id;
+  IF diff_points != 0 THEN
+    INSERT INTO `points_transactions`(`member_id`, `points_changed`, `transaction_type`)
+      VALUES (NEW.member_id, diff_points, IF(diff_points > 0, 'add', 'subtract'));
+  END IF;
+END;
+""")
+    await connection.execute_script(
+        """
+CREATE TRIGGER IF NOT EXISTS `after_points_spend`
+AFTER UPDATE ON `member`
+FOR EACH ROW
+BEGIN
+  DECLARE point_diff INT;
+  SET point_diff = OLD.points - NEW.points;
+
+  IF point_diff > 0 THEN
+    INSERT INTO `points_transactions`(`member_id`, `points_changed`, `transaction_type`)
+    VALUES (NEW.id, -point_diff, 'spend');
+  END IF;
+END;
+""")
+    await connection.execute_script(
+        """
+SET GLOBAL event_scheduler = ON;
+ """)
+    await connection.execute_script(
+        """
+CREATE EVENT IF NOT EXISTS `check_and_update_member_levels`
+ON SCHEDULE EVERY 5 MINUTE 
+STARTS CURRENT_TIMESTAMP
+DO
+BEGIN
+  UPDATE `member` m
+  JOIN `discount_levels` dl
+  ON m.`discount_level_id` = dl.`level_id`
+  JOIN `discount_levels` dl2
+  ON dl2.`points_required` > dl.`points_required` AND m.`points` >= dl2.`points_required`
+  SET m.`discount_level_id` = dl2.`level_id`
+  WHERE dl2.`points_required` = (
+    SELECT MIN(`points_required`)
+    FROM `discount_levels`
+    WHERE `points_required` > dl.`points_required` AND `points_required` <= m.`points`
+  );
+END;
+""")
 
 async def init_menus():
     menus = await Menu.exists()
