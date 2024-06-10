@@ -98,7 +98,7 @@ async def upload_user(
                 username=row[0],
                 email=row[1],
                 password=row[2],
-                role_ids=[int(role_id) for role_id in row[4].split(",")] if row[4] else []
+                role_ids=[int(role_id) for role_id in row[3].split(",")] if row[3] else []
             )
             user = await user_controller.get_by_email(user_in.email)
             if user:
