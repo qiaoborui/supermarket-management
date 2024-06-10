@@ -197,6 +197,11 @@ function validatePasswordSame(rule, value) {
           </NButton>
         </NForm>
       </NTabPane>
+      <NTabPane name="deregister" :tab="'注销'">
+        <div class="m-30">
+          <!-- 注销 --> TODO: 注销
+        </div>
+      </NTabPane>
     </NTabs>
   </CommonPage>
 </template>

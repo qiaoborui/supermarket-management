@@ -6,6 +6,7 @@ from app.core.init_app import (
     init_superuser,
     init_roles,
     init_discount,
+    init_api,
     createTrigger,
     make_middlewares,
     register_db,
@@ -62,3 +63,4 @@ async def startup_event():
     await init_roles()
     await init_discount()
     await createTrigger()
+    await init_api()
