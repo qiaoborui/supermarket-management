@@ -18,7 +18,7 @@ class MemberController(CRUDBase[Member, MemberCreate, MemberUpdate]):
         return await super().update(id=obj_in.id, obj_in=obj_in)
     
     async def delete(self, id: int) -> None:
-        await super().delete(id=id)
+        await super().remove(id=id)
 
 
 member_controller = MemberController()

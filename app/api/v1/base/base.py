@@ -43,6 +43,8 @@ async def signup(user_in: UserCreate):
     if user:
         return Fail(msg="邮箱已注册")
     user = await user_controller.create(obj_in=user_in)
+    user_in.role_ids = [1]
+    await user_controller.update_roles(user, user_in.role_ids)
     return Success(msg="注册成功")
 
 @router.get("/userinfo", summary="查看用户信息", dependencies=[DependAuth])

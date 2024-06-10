@@ -4,6 +4,7 @@ from app.core.exceptions import SettingNotFound
 from app.core.init_app import (
     init_menus,
     init_superuser,
+    init_roles,
     make_middlewares,
     register_db,
     register_exceptions,
@@ -56,3 +57,4 @@ app = create_app()
 async def startup_event():
     await init_superuser()
     await init_menus()
+    await init_roles()

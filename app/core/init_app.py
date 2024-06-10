@@ -20,6 +20,7 @@ from app.core.exceptions import (
 from app.models.admin import Menu
 from app.schemas.menus import MenuType
 from app.settings.config import settings
+from app.models.admin import Role
 
 from .middlewares import BackGroundTaskMiddleware
 
@@ -73,6 +74,8 @@ async def init_superuser():
             )
         )
 
+async def init_roles():
+    await Role.get_or_create(name="普通会员")
 
 async def init_menus():
     menus = await Menu.exists()
