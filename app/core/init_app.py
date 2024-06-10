@@ -84,22 +84,27 @@ async def init_discount():
         await DiscountLevel.create(
             name="普通会员",
             discount=1,
+            points_required=0,
         )
         await DiscountLevel.create(
             name="红海会员",
             discount=0.9,
+            points_required=500,
         )
         await DiscountLevel.create(
             name="银海会员",
             discount=0.8,
+            points_required=1000,
         )
         await DiscountLevel.create(
             name="金海会员",
             discount=0.7,
+            points_required=2000,
         )
         await DiscountLevel.create(
-            name="黑海",
+            name="黑海会员",
             discount=0.6,
+            points_required=5000,
         )
 
 async def init_menus():
