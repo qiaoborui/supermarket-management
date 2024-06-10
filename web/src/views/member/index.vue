@@ -296,6 +296,7 @@ const columns = [
             v-model:value="modalForm.user_id"
             :options="user_ids"
             key-field="id"
+            filterable
             label-field="username"
             placeholder="请选择用户"
             clearable
