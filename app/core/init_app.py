@@ -21,6 +21,7 @@ from app.models.admin import Menu
 from app.schemas.menus import MenuType
 from app.settings.config import settings
 from app.models.admin import Role
+from app.models.discount_level import DiscountLevel
 
 from .middlewares import BackGroundTaskMiddleware
 
@@ -76,6 +77,30 @@ async def init_superuser():
 
 async def init_roles():
     await Role.get_or_create(name="普通会员")
+
+async def init_discount():
+    discount = await DiscountLevel.exists()
+    if not discount:
+        await DiscountLevel.create(
+            name="普通会员",
+            discount=1,
+        )
+        await DiscountLevel.create(
+            name="红海会员",
+            discount=0.9,
+        )
+        await DiscountLevel.create(
+            name="银海会员",
+            discount=0.8,
+        )
+        await DiscountLevel.create(
+            name="金海会员",
+            discount=0.7,
+        )
+        await DiscountLevel.create(
+            name="黑海",
+            discount=0.6,
+        )
 
 async def init_menus():
     menus = await Menu.exists()

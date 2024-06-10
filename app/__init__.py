@@ -5,6 +5,7 @@ from app.core.init_app import (
     init_menus,
     init_superuser,
     init_roles,
+    init_discount,
     make_middlewares,
     register_db,
     register_exceptions,
@@ -58,3 +59,4 @@ async def startup_event():
     await init_superuser()
     await init_menus()
     await init_roles()
+    await init_discount()
