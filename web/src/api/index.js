@@ -49,4 +49,6 @@ export default {
   createConsumption: (data = {}) => request.post('/consumption_record/create', data),
   updateConsumption: (data = {}) => request.post('/consumption_record/update', data),
   deleteConsumption: (params = {}) => request.delete('/consumption_record/delete', { params }),
+  // getPointTransactions
+  getPointTransactions: (params = {}) => request.get('/point_transaction/list', { params }),
 }
