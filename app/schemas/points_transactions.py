@@ -5,19 +5,19 @@ from pydantic import BaseModel, Field
 
 class BasePointsRecords(BaseModel):
     id: int
-    member: int
-    points: float
+    member_id: int
+    points_changed: float
     created_at: Optional[datetime]
     updated_at: Optional[datetime]
 
-class PointsRecordsCreate(BaseModel):
-    member: int
-    points: float
+class PointsTransactionCreate(BaseModel):
+    member_id: int
+    points_changed: float
 
     def create_dict(self):
         return self.model_dump(exclude_unset=True)
     
-class PointsRecordsUpdate(BaseModel):
+class PointsTransactionUpdate(BaseModel):
     id: int
-    member: int
-    points: float
+    member_id: int
+    points_changed: float

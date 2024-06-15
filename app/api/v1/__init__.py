@@ -10,6 +10,7 @@ from .users import users_router
 from .discount_level import discount_level_router
 from .members import members_router
 from .consumption_record import consumption_record_router
+from .point_transaction import point_transaction_router
 
 v1_router = APIRouter()
 
@@ -21,3 +22,4 @@ v1_router.include_router(apis_router, prefix="/api", dependencies=[DependPermiss
 v1_router.include_router(discount_level_router, prefix="/discount_level", dependencies=[DependPermisson])
 v1_router.include_router(members_router, prefix="/member", dependencies=[DependPermisson])
 v1_router.include_router(consumption_record_router, prefix="/consumption_record", dependencies=[DependPermisson])
+v1_router.include_router(point_transaction_router, prefix="/point_transaction", dependencies=[DependPermisson])

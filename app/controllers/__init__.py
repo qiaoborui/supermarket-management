@@ -3,3 +3,4 @@ from .user import user_controller as user_controller
 from .discount_level import discount_level_controller as discount_level_controller
 from .members import member_controller as member_controller
 from .consumption_records import consumption_record_controller as consumption_record_controller
+from .points_transaction import points_transaction_controller as points_transaction_controller
