@@ -44,4 +44,9 @@ export default {
   createMember: (data = {}) => request.post('/member/create', data),
   updateMember: (data = {}) => request.post('/member/update', data),
   deleteMember: (params = {}) => request.delete('/member/delete', { params }),
+  // consumption
+  getConsumptions: (params = {}) => request.get('/consumption_record/list', { params }),
+  createConsumption: (data = {}) => request.post('/consumption_record/create', data),
+  updateConsumption: (data = {}) => request.post('/consumption_record/update', data),
+  deleteConsumption: (params = {}) => request.delete('/consumption_record/delete', { params }),
 }

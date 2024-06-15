@@ -86,7 +86,7 @@
           <n-input v-model:value="address" placeholder="请输入您的住址" />
         </n-form-item>
         <n-form-item>
-          <n-checkbox v-model:value="agree">我已阅读并同意隐私协议</n-checkbox>
+          <n-checkbox v-model:checked="agree">我已阅读并同意隐私协议</n-checkbox>
         </n-form-item>
       </n-form>
       <p>Agree value: {{ agree }}</p>
