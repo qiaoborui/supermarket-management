@@ -179,6 +179,7 @@ onMounted(() => {
     renderPieChart()
     renderLineChart()
     renderDicountChart()
+    showButton.value = false
   }
   user_id.value = userStore.userId
   isSuperAdmin.value = userStore.userInfo.is_superuser
