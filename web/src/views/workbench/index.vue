@@ -97,6 +97,32 @@
       </template>
     </n-card>
   </n-modal>
+  <n-modal v-model:show="showModifyModal" aria-modal="true" role="dialog">
+    <n-card style="width: 600px" title="认证信息" bordered="false" size="huge">
+      <template #header-extra>
+        请输入您的认证信息
+      </template>
+      <n-form>
+        <n-form-item label="真实姓名">
+          <n-input v-model:value="name" placeholder="请输入您的真实姓名" />
+        </n-form-item>
+        <n-form-item label="手机号">
+          <n-input v-model:value="phone" placeholder="请输入您的手机号" />
+        </n-form-item>
+        <n-form-item label="身份证号">
+          <n-input v-model:value="idCard" placeholder="请输入您的身份证号" />
+        </n-form-item>
+        <n-form-item label="住址">
+          <n-input v-model:value="address" placeholder="请输入您的住址" />
+        </n-form-item>
+      </n-form>
+      <template #footer>
+        <n-button block size="large" type="primary" @click="updateForm">
+          确认更新
+        </n-button>
+      </template>
+    </n-card>
+  </n-modal>
   </div>
 
   </AppPage>
@@ -150,6 +176,7 @@ onMounted(() => {
 })
 })
 const showModal = ref(false)
+const showModifyModal = ref(false)
 const name = ref('')
 const phone = ref('')
 const idCard = ref('')
@@ -167,12 +194,43 @@ async function submitForm() {
   const discount_level = discount_levels.value.reduce((prev, current) => {
     return prev.points_required < current.points_required ? prev : current
   })
-  api.createMember({ user_id: user_id.value, realname: name.value, phone: phone.value, personal_id: idCard.value, address: address.value, discount_level_id: discount_level.id }).then((res) => {
+  api.updateMember({ user_id: user_id.value, realname: name.value, phone: phone.value, personal_id: idCard.value, address: address.value, discount_level_id: discount_level.id }).then((res) => {
     message.success('认证成功')
     showButton.value = false
     closeModal()
+  }).then(()=>{
+    location.reload()
   })
   showModal.value = false
+  // 刷新页面
+}
+async function editInfo() {
+  showModifyModal.value = true
+  // 首先获取之前的用户信息
+  const resp = await api.getMembers({ user_id: user_id.value })
+  console.log('resp:', resp)
+  member_list.value = resp.data
+  // 将表单中的信息填充到结构中用于更新
+  name.value = member_list.value[0].realname
+  phone.value = member_list.value[0].phone
+  idCard.value = member_list.value[0].personal_id
+  address.value = member_list.value[0].address
+}
+async function updateForm() {
+  const resp = await api.getMembers({ user_id: user_id.value })
+  member_list.value = resp.data
+  // 将表单中的信息填充到结构中用于更新
+  member_list.value[0].realname = name.value
+  member_list.value[0].phone = phone.value
+  member_list.value[0].personal_id = idCard.value
+  member_list.value[0].address = address.value
+  console.log('member_list:', member_list.value)
+  api.updateMember(member_list.value[0]).then((res) => {
+    message.success('更新成功')
+    showButton.value = false
+    closeModal()
+  })
+  showModifyModal.value = false
   // 刷新页面
   location.reload()
 }
