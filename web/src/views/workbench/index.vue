@@ -17,7 +17,7 @@
           </n-space>
         </div>
       </n-card>
-    <div>
+    <div v-if="!isSuperAdmin">
       <n-card v-if="is_member" title="个人信息" style="max-width: 500px;" bordered hoverable :segmented="{ content: 'soft' }">
     <div class="info-item">
       <strong>真实姓名：</strong>{{ userInfo.name }}
@@ -39,29 +39,20 @@
     </n-button>
   </n-card>
   </div>
-      <!-- <n-card
-        :title="$t('views.workbench.label_project')"
-        size="small"
-        :segmented="true"
-        mt-15
-        rounded-10
-      >
-        <template #header-extra>
-          <n-button text type="primary">{{ $t('views.workbench.label_more') }}</n-button>
-        </template>
-        <div flex flex-wrap justify-between>
-          <n-card
-            v-for="i in 9"
-            :key="i"
-            class="mb-10 mt-10 w-300 cursor-pointer"
-            hover:card-shadow
-            title="Vue FastAPI Admin"
-            size="small"
-          >
-            <p op-60>{{ dummyText }}</p>
-          </n-card>
-        </div>
-      </n-card> -->
+  <div v-if="isSuperAdmin">
+    <n-date-picker v-model:value="range" type="daterange" clearable style="max-width: 300px;" />
+  <div class="flex flex-wrap justify-center items-start gap-50">
+    <n-card style="max-width: 500px;">
+      <div id="memberChart" style="width: 500px;height:400px;"></div> 
+    </n-card>
+    <n-card style="max-width: 500px;">
+      <div id="amountChart" style="width: 500px;height:400px;"></div>
+    </n-card>
+    <n-card style="max-width: 500px;">
+      <div id="discountChart" style="width: 500px;height:400px;"></div>
+    </n-card>
+  </div>
+  </div>
   <div class="mx-auto w-full max-w-md">
     <n-button v-if="showButton" @click="showModal = true" type="primary">
       点击进行实名注册
@@ -131,8 +122,9 @@
 <script setup>
 import { useUserStore } from '@/store'
 import { useI18n } from 'vue-i18n'
-import { ref } from 'vue'
+import { ref,watch } from 'vue'
 import { NModal, NForm, NFormItem, NInput, NButton, NCheckbox,NCard, useMessage } from 'naive-ui'
+import * as echarts from 'echarts';
 const dummyText = '一个基于 Vue3.0、FastAPI、Naive UI 的轻量级后台管理模板'
 const { t } = useI18n({ useScope: 'global' })
 import api from '~/src/api';
@@ -144,16 +136,51 @@ const userInfo = ref({
   address: '',
   points: 0,
 })
+// 计算一周前的时间
+const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
 
+const range = ref([oneWeekAgo, Date.now()])
 
+let start_time = ref(convertDate(range.value[0],true))
+let end_time = ref(convertDate(range.value[1],false))
+console.log('start_time:', start_time)
+console.log('end_time:', end_time)
+// 监听 range 的变化
+watch(range, (newRange) => {
+  console.log('newRange:', newRange)
+  start_time = convertDate(newRange[0],true)
+  end_time = convertDate(newRange[1],false)
+  console.log('start_time:', start_time)
+  renderDicountChart()
+  renderLineChart()
 
+})
+
+function convertDate(time, isStart) {
+  //convert timestamp to 2024-06-17 00:00:00.000000
+  const date = new Date(time)
+  const year = date.getFullYear()
+  const month = date.getMonth() + 1
+  const day = date.getDate()
+  const hours = isStart ? '00' : '23'
+  const minutes = isStart ? '00' : '59'
+  const seconds = isStart ? '00' : '59'
+  const milliseconds = isStart ? '000' : '999'
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}`
+}
+
+const isSuperAdmin = ref(false)
 const message = useMessage()
 const showButton = ref(true)
 const user_id = ref('')
 const member_list = ref([])
 const is_member = ref(false)
 onMounted(() => {
+  renderPieChart()
+  renderLineChart()
+  renderDicountChart()
   user_id.value = userStore.userId
+  isSuperAdmin.value = userStore.userInfo.is_superuser
   api.getMembers({ user_id: user_id.value }).then((res) => {
     member_list.value = res.data
     // 查看 member里有没有 user_id
@@ -183,6 +210,9 @@ const idCard = ref('')
 const address = ref('')
 const agree = ref(false)
 const discount_levels = ref([])
+
+
+
 async function submitForm() {
   if (!agree) {
     message.error('请先同意隐私协议')
@@ -194,11 +224,10 @@ async function submitForm() {
   const discount_level = discount_levels.value.reduce((prev, current) => {
     return prev.points_required < current.points_required ? prev : current
   })
-  api.updateMember({ user_id: user_id.value, realname: name.value, phone: phone.value, personal_id: idCard.value, address: address.value, discount_level_id: discount_level.id }).then((res) => {
+  api.createMember({ user_id: user_id.value, realname: name.value, phone: phone.value, personal_id: idCard.value, address: address.value, discount_level_id: discount_level.id }).then((res) => {
     message.success('认证成功')
     showButton.value = false
     closeModal()
-  }).then(()=>{
     location.reload()
   })
   showModal.value = false
@@ -233,6 +262,89 @@ async function updateForm() {
   showModifyModal.value = false
   // 刷新页面
   location.reload()
+}
+async function renderPieChart() {
+  const member = await api.getMemberLevelStatistics()
+  const chart = echarts.init(document.getElementById('memberChart'))
+  const discount_levels = member.data.map((item) => item.level)
+  const member_count = member.data.map((item) => item.count)
+  const option = {
+    title: {
+      text: '会员等级统计',
+    },
+    tooltip: {},
+    legend: {
+      data: discount_levels,
+    },
+    series: [
+      {
+        name: '会员数量',
+        type: 'pie',
+        radius: '50%',
+        data: member_count.map((count, index) => ({
+          value: count,
+          name: discount_levels[index],
+        })),
+      },
+    ],
+  }
+  chart.setOption(option);
+
+}
+async function renderDicountChart(){
+  console.log('start_time:', start_time.value)
+  const data = await api.getDiscountStatistics({start_time: start_time.value, end_time: end_time.value})
+  const chart = echarts.init(document.getElementById('discountChart'))
+  const date = data.data.map((item) => item.date)
+  const discount = data.data.map((item) => item.total_amount)
+  console.log('date:', date)
+  console.log('discount:', discount)
+  const option = {
+    title: {
+      text: '折扣统计',
+    },
+    tooltip: {},
+    xAxis: {
+      type: 'category',
+      data: date,
+    },
+    yAxis: {
+      type: 'value',
+    },
+    series: [
+      {
+        data: discount,
+        type: 'line',
+      },
+    ],
+  }
+  chart.setOption(option);
+}
+async function renderLineChart(){
+  const data = await api.getConsumptionStatistics({start_time: start_time.value, end_time: end_time.value})
+  const chart = echarts.init(document.getElementById('amountChart'))
+  const date = data.data.map((item) => item.date)
+  const amount = data.data.map((item) => item.total_amount)
+  const option = {
+    title: {
+      text: '消费金额统计',
+    },
+    tooltip: {},
+    xAxis: {
+      type: 'category',
+      data: date,
+    },
+    yAxis: {
+      type: 'value',
+    },
+    series: [
+      {
+        data: amount,
+        type: 'line',
+      },
+    ],
+  }
+  chart.setOption(option);
 }
 const userStore = useUserStore()
 </script>

@@ -76,3 +76,39 @@ async def get_member_count():
         member_count[discount_levels[member.discount_level_id]] += 1
 
     return Success(data=[{"level": level, "count": count} for level, count in member_count.items()])
+
+
+@router.get("/discount", summary="获取时间段内每天优惠总额") 
+async def get_discount_amount(
+    start_time: Optional[str] = Query(None, description="开始时间"),
+    end_time: Optional[str] = Query(None, description="结束时间")
+):
+    q = Q()
+    if start_time:
+        q &= Q(created_at__gte=start_time)
+    if end_time:
+        q &= Q(created_at__lte=end_time)
+
+    # 假设consumption_record_controller.list 返回的是一个包含记录的列表
+    total, consumption_record_objs = await consumption_record_controller.list(page=1, page_size=10000, search=q)
+    if not consumption_record_objs:
+        return SuccessExtra(data=[], total=0, page=1, page_size=10000)
+    
+    # 解析时间字符串并生成日期范围
+    start_date = datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S.%f").date()
+    end_date = datetime.strptime(end_time, "%Y-%m-%d %H:%M:%S.%f").date()
+    date_range = generate_date_range(start_date, end_date)
+
+    for record in consumption_record_objs:
+        record.discount_amount = record.amount_spent - record.actual_amount_spent
+
+    daily_discounts = {date: 0 for date in date_range}
+    for record in consumption_record_objs:
+        date_str = record.created_at.strftime("%Y-%m-%d")
+        daily_discounts[date_str] += record.discount_amount
+    
+    daily_discounts = [DailyConsumption(date=date, total_amount=amount) for date, amount in daily_discounts.items()]
+    # convert to dict
+    daily_discounts = [item.dict() for item in daily_discounts]
+
+    return Success(data=daily_discounts)

@@ -51,4 +51,8 @@ export default {
   deleteConsumption: (params = {}) => request.delete('/consumption_record/delete', { params }),
   // getPointTransactions
   getPointTransactions: (params = {}) => request.get('/point_transaction/list', { params }),
+  // statistics
+  getMemberLevelStatistics: (params = {}) => request.get('/statistic/member'),
+  getConsumptionStatistics: (params = {}) => request.get('/statistic/amount', { params }),
+  getDiscountStatistics: (params = {}) => request.get('/statistic/discount', { params }),
 }
