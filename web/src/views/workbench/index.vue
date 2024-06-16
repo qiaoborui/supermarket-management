@@ -41,17 +41,17 @@
   </div>
   <div v-if="isSuperAdmin">
     <n-date-picker v-model:value="range" type="daterange" clearable style="max-width: 300px;" />
-  <div class="flex flex-wrap justify-center items-start gap-50">
-    <n-card style="max-width: 500px;">
-      <div id="memberChart" style="width: 500px;height:400px;"></div> 
-    </n-card>
-    <n-card style="max-width: 500px;">
-      <div id="amountChart" style="width: 500px;height:400px;"></div>
-    </n-card>
-    <n-card style="max-width: 500px;">
-      <div id="discountChart" style="width: 500px;height:400px;"></div>
-    </n-card>
-  </div>
+    <div class="flex flex-wrap justify-between items-start gap-4">
+  <n-card style="flex: 1 1 calc(33.33% - 16px); max-width: calc(33.33% - 16px);">
+    <div id="memberChart" style="width: 100%; height: 400px;"></div> 
+  </n-card>
+  <n-card style="flex: 1 1 calc(33.33% - 16px); max-width: calc(33.33% - 16px);">
+    <div id="amountChart" style="width: 100%; height: 400px;"></div>
+  </n-card>
+  <n-card style="flex: 1 1 calc(33.33% - 16px); max-width: calc(33.33% - 16px);">
+    <div id="discountChart" style="width: 100%; height: 400px;"></div>
+  </n-card>
+</div>
   </div>
   <div class="mx-auto w-full max-w-md">
     <n-button v-if="showButton" @click="showModal = true" type="primary">
@@ -143,16 +143,15 @@ const range = ref([oneWeekAgo, Date.now()])
 
 let start_time = ref(convertDate(range.value[0],true))
 let end_time = ref(convertDate(range.value[1],false))
-console.log('start_time:', start_time)
-console.log('end_time:', end_time)
 // 监听 range 的变化
-watch(range, (newRange) => {
+watch(range, async (newRange) => {
   console.log('newRange:', newRange)
-  start_time = convertDate(newRange[0],true)
-  end_time = convertDate(newRange[1],false)
+  start_time.value = convertDate(newRange[0],true)
+  end_time.value = convertDate(newRange[1],false)
   console.log('start_time:', start_time)
-  renderDicountChart()
-  renderLineChart()
+  console.log('end_time:', end_time)
+  await renderDicountChart()
+  await renderLineChart()
 
 })
 
@@ -274,6 +273,8 @@ async function renderPieChart() {
     },
     tooltip: {},
     legend: {
+      orient: 'horizontal',
+      bottom: '0',
       data: discount_levels,
     },
     series: [
