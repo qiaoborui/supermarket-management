@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { NButton, NForm, NFormItem, NInput, NTabPane, NTabs, NImage } from 'naive-ui'
+import { useMessage, useDialog } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
 import CommonPage from '@/components/page/CommonPage.vue'
 import { useUserStore } from '@/store'
@@ -117,6 +118,26 @@ function validatePasswordStartWith(rule, value) {
 function validatePasswordSame(rule, value) {
   return value === passwordForm.value.new_password
 }
+const message = useMessage()
+const dialog = useDialog()
+// 注销账号
+function handleDeregister() {
+  dialog.warning({
+          title: '请确认要注销账号',
+          content: '注销账号后，您的所有信息将被删除，且无法恢复',
+          positiveText: '确认注销',
+          negativeText: '取消',
+          onPositiveClick: () => {
+            api.deleteUser({ user_id: userStore.userId }).then(() => {
+              userStore.logout()
+              router.push({ name: 'login' })
+            })
+          },
+          onNegativeClick: () => {
+            message.error('取消注销')
+          }
+        })
+}
 </script>
 
 <template>
@@ -199,7 +220,9 @@ function validatePasswordSame(rule, value) {
       </NTabPane>
       <NTabPane name="deregister" :tab="'注销'">
         <div class="m-30">
-          <!-- 注销 --> TODO: 注销
+          <NButton type="error" @click="handleDeregister">
+            注销
+          </NButton>
         </div>
       </NTabPane>
     </NTabs>
