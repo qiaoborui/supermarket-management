@@ -27,7 +27,7 @@ import api from '@/api'
 import TheIcon from '@/components/icon/TheIcon.vue'
 import { useUserStore } from '@/store'
 
-defineOptions({ name: '积分变动记录' })
+defineOptions({ name: '消费记录管理' })
 
 const $table = ref(null)
 const queryItems = ref({})
@@ -48,8 +48,11 @@ const {
   modalForm,
   modalFormRef,
 } = useCRUD({
-  name: '积分记录',
+  name: '消费记录',
   initForm: {},
+  doCreate: api. createConsumption,
+  doDelete: api.deleteConsumption,
+  doUpdate: api.updateConsumption,
   refresh: () => $table.value?.handleSearch(),
 })
 const userStore = useUserStore()
@@ -58,34 +61,35 @@ onMounted(async () => {
   const members = await api.getMembers({ user_id: userId })
   console.log(members)
   if (members) {
-    queryItems.value.realname = members.data[0].realname
+    queryItems.value.member_name = members.data[0].realname
   }
   console.log('queryItems:', queryItems)
   $table.value?.handleSearch()
 })
 
+
 const columns = [
   {
     title: '真实姓名',
-    key: 'realname',
+    key: 'member_name',
     width: 80,
     align: 'center',
   }, 
   {
-    title: '积分变动',
-    key: 'points_changed',
+    title: '会员等级',
+    key: 'discount_level_name',
     width: 90,
     align: 'center',
   },
   {
-    title: '积分变动类型',
-    key: 'transaction_type',
+    title: '消费金额',
+    key: 'amount_spent',
     width: 80,
     align: 'center',
   },
   {
-    title: '手机号',
-    key: 'phone',
+    title: '实际消费金额',
+    key: 'actual_amount_spent',
     width: 80,
     align: 'center',
   },
@@ -107,20 +111,72 @@ const columns = [
     render(row) {
       return h('span', formatDate(row.updated_at))
     },
-  }
+  },
+  {
+    title: '操作',
+    key: 'actions',
+    width: 80,
+    align: 'center',
+    fixed: 'right',
+    render(row) {
+      return [
+        withDirectives(
+          h(
+            NButton,
+            {
+              size: 'small',
+              type: 'primary',
+              style: 'margin-right: 8px;',
+              onClick: () => {
+                handleEdit(row)
+              },
+            },
+            {
+              default: () => '编辑',
+              icon: renderIcon('material-symbols:edit-outline', { size: 16 }),
+            }
+          ),
+          [[vPermission, 'post/api/v1/consumption_record/update']]
+        ),
+        h(
+          NPopconfirm,
+          {
+            onPositiveClick: () => handleDelete({ member_id: row.id }, false),
+            onNegativeClick: () => {},
+          },
+          {
+            trigger: () =>
+              withDirectives(
+                h(
+                  NButton,
+                  {
+                    size: 'small',
+                    type: 'error',
+                    style: 'margin-right: 8px;',
+                  },
+                  {
+                    default: () => '删除',
+                    icon: renderIcon('material-symbols:delete-outline', { size: 16 }),
+                  }
+                ),
+                [[vPermission, 'delete/api/v1/consumption_record/delete']]
+              ),
+            default: () => h('div', {}, '确定删除该消费记录吗?'),
+          }
+        ),
+      ]
+    },
+  },
 ]
 </script>
 
 <template>
-  <CommonPage show-footer title="积分记录">
-    <template #action>
-    </template>
-
+  <CommonPage show-footer title="消费记录">
     <CrudTable
       ref="$table"
       v-model:query-items="queryItems"
       :columns="columns"
-      :get-data="api.getPointTransactions"
+      :get-data="api.getConsumptions"
     >
     </CrudTable>
   </CommonPage>
