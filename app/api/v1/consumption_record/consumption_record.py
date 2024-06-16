@@ -7,6 +7,7 @@ from app.controllers import consumption_record_controller
 from app.controllers import member_controller, discount_level_controller
 from app.schemas.base import Success, SuccessExtra
 from app.schemas.consumption_records import *
+from app.models.members import Member
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
@@ -15,23 +16,27 @@ router = APIRouter()
 async def list_consumption_record(
     page: int = Query(1, description="页码"),
     page_size: int = Query(10, description="每页数量"),
-    member_id: int = Query(None, description="会员ID，用于查询"),
+    member_name: str = Query(None, description="会员名，用于查询"),
 ):
     q = Q()
-    if member_id:
-        q = Q(member_id=member_id)
-    total, consumption_record_objs = await consumption_record_controller.list(page=page, page_size=page_size, search=q)
-    # 连接查询 member 表 拿到会员名， 连接查询 discount_level 表 拿到折扣等级名
-    consumption_record_list = []
-    for consumption_record_obj in consumption_record_objs:
-        consumption_record_dict = await consumption_record_obj.to_dict()
-        member_obj = await member_controller.get(id=consumption_record_dict['member_id'])
-        consumption_record_dict['member_name'] = member_obj.realname
-        discount_level_obj = await discount_level_controller.get(id=member_obj.discount_level_id)
-        consumption_record_dict['discount_level_name'] = discount_level_obj.name
-        consumption_record_list.append(consumption_record_dict)
-    return SuccessExtra(data=consumption_record_list, total=total)
 
+    if member_name:
+        q &= Q(realname__contains=member_name)
+    member_objs = await Member.filter(q)
+    member_ids = [obj.id for obj in member_objs]
+    q = Q()
+    if member_ids:
+        q &= Q(member_id__in=member_ids)
+    total, consumption_record_objs = await consumption_record_controller.list(page=page, page_size=page_size, search=q)
+    data = [await obj.to_dict(m2m=True) for obj in consumption_record_objs]
+    # 获取消费记录的会员信息
+    for obj in data:
+        member_obj = await member_controller.get(id=obj["member_id"])
+        obj["member_name"] = member_obj.realname
+        obj["phone"] = member_obj.phone
+        discount_level_obj = await discount_level_controller.get(id=obj["discount_level_id"])
+        obj["discount_level_name"] = discount_level_obj.name
+    return SuccessExtra(data=data, total=total, page=page, page_size=page_size)
 
 @router.get("/get", summary="查看消费记录")
 async def get_consumption_record(
