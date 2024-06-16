@@ -175,9 +175,11 @@ const user_id = ref('')
 const member_list = ref([])
 const is_member = ref(false)
 onMounted(() => {
-  renderPieChart()
-  renderLineChart()
-  renderDicountChart()
+  if (userStore.isSuperUser){
+    renderPieChart()
+    renderLineChart()
+    renderDicountChart()
+  }
   user_id.value = userStore.userId
   isSuperAdmin.value = userStore.userInfo.is_superuser
   api.getMembers({ user_id: user_id.value }).then((res) => {
