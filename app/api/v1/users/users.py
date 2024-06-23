@@ -103,7 +103,8 @@ async def upload_user(
             user = await user_controller.get_by_email(user_in.email)
             if user:
                 continue
-            await user_controller.create(obj_in=user_in)
+            new_user = await user_controller.create(obj_in=user_in)
+            await user_controller.update_roles(new_user, user_in.role_ids)
     except csv.Error as e:
         return HTTPException(status_code=400, detail=f"CSV file error: {str(e)}")
 
