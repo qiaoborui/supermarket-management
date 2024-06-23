@@ -208,6 +208,15 @@ const columns = [
             @keypress.enter="$table?.handleSearch()"
           />
         </QueryBarItem>
+        <QueryBarItem label="手机号" :label-width="50">
+          <NInput
+            v-model:value="queryItems.phone"
+            clearable
+            type="text"
+            placeholder="请输入手机号"
+            @keypress.enter="$table?.handleSearch()"
+          />
+        </QueryBarItem>
       </template>
     </CrudTable>
 

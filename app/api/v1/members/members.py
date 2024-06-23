@@ -18,11 +18,14 @@ async def list_members(
     page: int = Query(1, description="页码"),
     page_size: int = Query(10, description="每页数量"),
     name: str = Query("", description="会员姓名，用于查询"),
+    phone: str = Query("", description="会员电话，用于查询"),
     user_id: int = Query(None, description="用户ID，用于查询"),
 ):
     q = Q()
     if name:
         q = Q(realname__icontains=name)
+    if phone:
+        q = q & Q(phone__icontains=phone)
     if user_id:
         user_obj = await user_controller.get(id=user_id)
         q = q & Q(user=user_obj)
