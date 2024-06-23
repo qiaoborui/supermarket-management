@@ -112,3 +112,34 @@ async def get_discount_amount(
     daily_discounts = [item.dict() for item in daily_discounts]
 
     return Success(data=daily_discounts)
+
+@router.get("/statistics", summary="获取统计数据")
+async def get_statistics(
+    start_time: Optional[str] = Query(None, description="开始时间"),
+    end_time: Optional[str] = Query(None, description="结束时间")
+):
+    # 获取消费总额
+    q = Q()
+    if start_time:
+        q &= Q(created_at__gte=start_time)
+    if end_time:
+        q &= Q(created_at__lte=end_time)
+
+    # 假设consumption_record_controller.list 返回的是一个包含记录的列表
+    total, consumption_record_objs = await consumption_record_controller.list(page=1, page_size=10000, search=q)
+    # 获取会员数量
+    total, member_objs = await member_controller.list(page=1, page_size=10000)
+    # 获取优惠总额
+    total, consumption_record_objs = await consumption_record_controller.list(page=1, page_size=10000, search=q)
+    """
+    return {
+        "consumption_amount": 0,
+        "member_count": 0,
+        "discount_amount": 0
+    }
+    """
+    consumption_amount = sum([record.actual_amount_spent for record in consumption_record_objs])
+    member_count = len(member_objs)
+    discount_amount = sum([record.amount_spent - record.actual_amount_spent for record in consumption_record_objs])
+
+    return Success(data={ "consumption_amount": consumption_amount, "member_count": member_count, "discount_amount": discount_amount })

@@ -55,4 +55,5 @@ export default {
   getMemberLevelStatistics: (params = {}) => request.get('/statistic/member'),
   getConsumptionStatistics: (params = {}) => request.get('/statistic/amount', { params }),
   getDiscountStatistics: (params = {}) => request.get('/statistic/discount', { params }),
+  getStatistic: (params = {}) => request.get('/statistic/statistics', { params }),
 }

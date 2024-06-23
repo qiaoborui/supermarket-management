@@ -12,7 +12,7 @@
               <p mt-5 text-14 op-60>{{ $t('views.workbench.text_welcome') }}</p>
             </div>
           </div>
-          <n-space :size="12" :wrap="false">
+          <n-space :size="12" :wrap="false" v-if="isSuperAdmin">
             <n-statistic v-for="item in statisticData" :key="item.id" v-bind="item"></n-statistic>
           </n-space>
         </div>
@@ -125,10 +125,7 @@ import { useI18n } from 'vue-i18n'
 import { ref,watch } from 'vue'
 import { NModal, NForm, NFormItem, NInput, NButton, NCheckbox,NCard, useMessage } from 'naive-ui'
 import * as echarts from 'echarts';
-const dummyText = '一个基于 Vue3.0、FastAPI、Naive UI 的轻量级后台管理模板'
-const { t } = useI18n({ useScope: 'global' })
 import api from '~/src/api';
-import { is } from '~/src/utils';
 const userInfo = ref({
   name: '',
   phone: '',
@@ -179,6 +176,7 @@ onMounted(() => {
     renderPieChart()
     renderLineChart()
     renderDicountChart()
+    fetchStatisticData()
     showButton.value = false
   }
   user_id.value = userStore.userId
@@ -212,9 +210,35 @@ const idCard = ref('')
 const address = ref('')
 const agree = ref(false)
 const discount_levels = ref([])
+const statisticData = [
+  {
+    id: 1,
+    label: '消费金额',
+    value: null
+  },
+  {
+    id: 2,
+    label: '会员数量',
+    value: null
+  },
+  {
+    id: 3,
+    label: '折扣金额',
+    value: null
+  },
+]
 
-
-
+async function fetchStatisticData() {
+  const resp = await api.getStatistic(
+    {
+      start_time: start_time.value,
+      end_time: end_time.value
+    }
+  )
+  statisticData[0].value = resp.data.consumption_amount
+  statisticData[1].value = resp.data.member_count
+  statisticData[2].value = resp.data.discount_amount
+}
 async function submitForm() {
   if (!agree) {
     message.error('请先同意隐私协议')
