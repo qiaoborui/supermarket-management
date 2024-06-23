@@ -59,7 +59,9 @@ onMounted(() => {
   api.getDiscountLevels().then((res) => {
     discount_levels.value = res.data
   })
-  api.getUserList().then((res) => {
+  api.getUserList(
+    { page: 1, page_size: 1000 },
+  ).then((res) => {
     user_ids.value = res.data
   })
 })

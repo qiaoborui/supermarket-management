@@ -58,13 +58,28 @@ const {
 const userStore = useUserStore()
 onMounted(async () => {
   $table.value?.handleSearch()
-  const resp = await api.getDiscountLevels()
+  const resp = await api.getDiscountLevels(
+    {
+      page: 1,
+      per_page: 1000,
+    }
+  )
   discount_levels.value = resp.data
   console.log('discount_levels:', discount_levels.value) 
-  const resp2 = await api.getMembers()
+  const resp2 = await api.getMembers(
+    {
+      page: 1,
+      per_page: 1000,
+    }
+  )
   memberList.value = resp2.data
   console.log('memberList:', memberList.value)
-  const resp3 = await api.getUserList()
+  const resp3 = await api.getUserList(
+    {
+      page: 1,
+      per_page: 1000,
+    }
+  )
   userList.value = resp3.data
 })
 
