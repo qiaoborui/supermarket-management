@@ -260,10 +260,11 @@ async function updateForm() {
     message.success('更新成功')
     showButton.value = false
     closeModal()
+  }).then(() => {
+    showModifyModal.value = false
+    // 刷新页面
+    location.reload()
   })
-  showModifyModal.value = false
-  // 刷新页面
-  location.reload()
 }
 async function renderPieChart() {
   const member = await api.getMemberLevelStatistics()
