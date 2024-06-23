@@ -284,7 +284,6 @@ const columns = [
           label="积分"
           path="points"
           :rule="{
-            required: true,
             message: '请输入积分',
             trigger: ['input', 'blur'],
           }"
