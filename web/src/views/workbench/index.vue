@@ -149,6 +149,7 @@ watch(range, async (newRange) => {
   console.log('end_time:', end_time)
   await renderDicountChart()
   await renderLineChart()
+  await fetchStatisticData()
 
 })
 
