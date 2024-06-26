@@ -61,7 +61,7 @@ onMounted(async () => {
   const resp = await api.getDiscountLevels(
     {
       page: 1,
-      per_page: 1000,
+      page_size: 1000,
     }
   )
   discount_levels.value = resp.data
@@ -69,7 +69,7 @@ onMounted(async () => {
   const resp2 = await api.getMembers(
     {
       page: 1,
-      per_page: 1000,
+      page_size: 1000,
     }
   )
   memberList.value = resp2.data
