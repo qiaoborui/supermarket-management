@@ -77,7 +77,7 @@ onMounted(async () => {
   const resp3 = await api.getUserList(
     {
       page: 1,
-      per_page: 1000,
+      page_size: 1000,
     }
   )
   userList.value = resp3.data

@@ -55,7 +55,11 @@ const {
 const userStore = useUserStore()
 onMounted(async () => {
   const userId = userStore.userId
-  const members = await api.getMembers({ user_id: userId })
+  const members = await api.getMembers({ 
+    user_id: userId,
+    page: 1,
+    page_size: 10000,
+   })
   console.log(members)
   if (members) {
     queryItems.value.realname = members.data[0].realname
