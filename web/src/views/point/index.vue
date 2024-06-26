@@ -111,7 +111,7 @@ const columns = [
 </script>
 
 <template>
-  <CommonPage show-footer title="消费记录">
+  <CommonPage show-footer title="积分变动">
     <template #action>
     </template>
 

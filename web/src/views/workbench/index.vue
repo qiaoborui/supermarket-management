@@ -34,6 +34,9 @@
     <div class="info-item">
       <strong>住址：</strong>{{ userInfo.address }}
     </div>
+    <div class="info-item">
+      <strong>会员等级：</strong>{{ userInfo.member_level }}
+    </div>
     <n-button block size="large" type="info" @click="editInfo">
       修改信息
     </n-button>
@@ -131,6 +134,8 @@ const userInfo = ref({
   phone: '',
   idCard: '',
   address: '',
+  discount_level_id:'',
+  member_level:'',
   points: 0,
 })
 // 计算一周前的时间
@@ -199,7 +204,15 @@ onMounted(() => {
         userInfo.value.idCard = member_list.value[0].personal_id
         userInfo.value.address = member_list.value[0].address
         userInfo.value.points = member_list.value[0].points
+        userInfo.value.discount_level_id = member_list.value[0].discount_level_id
       }
+      api.getDiscountLevels().then((res)=>{
+        let discount_list = res.data
+        let discountItem = discount_list.find(item => item.id === userInfo.value.discount_level_id)
+        if (discountItem) {
+          userInfo.value.member_level = discountItem.name
+        }
+      })
   })
 })
 })
